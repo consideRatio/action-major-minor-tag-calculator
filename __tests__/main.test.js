@@ -291,7 +291,7 @@ test("Multiple prefix", async () => {
     repo: "repo",
     ref: "refs/tags/0.0.1",
     // test use of different whitespace separators and a combination of both
-    prefix: "prefix1:\tprefix2:\n, prefix3:",
+    prefix: "prefix1:\nprefix2:\nprefix3:",
   });
   expect(tags).toEqual([
     "prefix1:0.0.1",
@@ -306,6 +306,62 @@ test("Multiple prefix", async () => {
     "prefix1:latest",
     "prefix2:latest",
     "prefix3:latest",
+  ]);
+});
+
+test("Single suffix", async () => {
+  tagInterceptor.reply(200, [
+    {
+      name: "0.0.1",
+    },
+  ]);
+  const tags = await calculateTags({
+    token: "TOKEN",
+    owner: "owner",
+    repo: "repo",
+    ref: "refs/tags/0.0.1",
+    suffix: "-suffix",
+  });
+  expect(tags).toEqual([
+    "0.0.1-suffix",
+    "0.0-suffix",
+    "0-suffix",
+    "latest-suffix",
+  ]);
+});
+
+test("Multiple prefix and suffix", async () => {
+  tagInterceptor.reply(200, [
+    {
+      name: "0.0.1",
+    },
+  ]);
+  const tags = await calculateTags({
+    token: "TOKEN",
+    owner: "owner",
+    repo: "repo",
+    ref: "refs/tags/0.0.1",
+    // test use of different whitespace separators and a combination of both
+    prefix: "prefix1:\nprefix2:",
+    suffix: "-a\n-b",
+  });
+  expect(tags).toEqual([
+    "prefix1:0.0.1-a",
+    "prefix1:0.0.1-b",
+    "prefix2:0.0.1-a",
+    "prefix2:0.0.1-b",
+    "prefix1:0.0-a",
+    "prefix1:0.0-b",
+    "prefix2:0.0-a",
+    "prefix2:0.0-b",
+    "prefix1:0-a",
+    "prefix1:0-b",
+    "prefix2:0-a",
+    "prefix2:0-b",
+    "prefix1:latest-a",
+    "prefix1:latest-b",
+    "prefix2:latest-a",
+    "prefix2:latest-b",
   ]);
 });
 
