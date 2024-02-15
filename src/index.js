@@ -181,6 +181,20 @@ async function run() {
     const defaultTag = core.getInput("defaultTag");
     const branchRegex = core.getInput("branchRegex");
 
+    function check_prefix_suffix(input_name, input_value) {
+      // Partial check that prefix and suffix inputs are OK
+      // Check if there is any whitespace characters besides new lines or
+      // commas.
+      const re = new RegExp(/^[^\s,]+$/g);
+      if (re.test(input_value.replace("\n", ""))) {
+        throw new Error(
+          `Input ${input_name} invalid, contains either comma or whitespace besides the new line separator`,
+        );
+      }
+    }
+    check_prefix_suffix("prefix", prefix);
+    check_prefix_suffix("suffix", suffix);
+
     core.debug(JSON.stringify(github.context));
     const allTags = await calculateTags({
       token: githubToken,
